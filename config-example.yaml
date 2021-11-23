@@ -1,0 +1,14 @@
+# Example config, to use this copy this file with name "config-example.yaml"
+# GGD Modern Massive standard notes
+drumset_notes:
+  kick: C0
+  snare: D0
+  rack_tom: A0
+  floor_tom_1: B0
+  floor_tom_2: D#1
+  hat_closed: B1
+  hat_open: G#2
+  crash_left: D3
+  crash_right: G3
+  ride: D4
+  china: E4

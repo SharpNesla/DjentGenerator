@@ -1,2 +1,2 @@
 # DjentGenerator
- Dennis Martensson inspired djent generation software.
+Dennis Martensson inspired djent generation software.
