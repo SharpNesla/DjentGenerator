@@ -12,7 +12,7 @@ from midi_exporter import MidiExporter
 
 
 def main():
-    MidiExporter.export_song(SongGenerator.generate_song(ConfigData()), 'test.mid')
+    MidiExporter.export_song(SongGenerator.generate_song(ConfigData(), 'Parallax'), 'test.mid')
 
 
 # Press the green button in the gutter to run the script.
