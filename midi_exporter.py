@@ -32,16 +32,18 @@ class MidiExporter:
             for bar in part.solo_guitar_part.bars:
                 solo_guitar_track.add_bar(bar)
             for bar in part.super_reverb_part.bars:
-                solo_guitar_track.add_bar(bar)
+                super_reverb_track .add_bar(bar)
 
         composition.add_track(drum_track)
         composition.add_track(guitar_track)
         composition.add_track(bass_track)
         composition.add_track(solo_guitar_track)
         composition.add_track(super_reverb_track)
+
         return composition
 
     @staticmethod
     def export_song(song: Song, filename: str):
         composition = MidiExporter.build_song(song)
-        midi_file_out.write_Composition(filename, composition, bpm=song.bpm)
+        
+        midi_file_out.write_Composition(filename, composition, bpm=90)

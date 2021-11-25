@@ -3,10 +3,12 @@ from __future__ import annotations
 from enum import Enum, auto
 from random import Random
 
+import mingus.core.scales
 from mingus.core.scales import *
-from mingus.containers import Track, Bar
+from mingus.containers import Track, Bar, Note
 import yaml
-import hashlib
+
+from utils import md5_from_str, enum_all_valuse_list
 
 
 class ConfigData(yaml.YAMLObject):
@@ -82,23 +84,44 @@ class Song:
 
 
 class RiffType(Enum):
+    SingleNotePoly: RiffType = auto()
     TomMuteRiff: RiffType = auto()
 
 
 class RiffGenerator:
     @staticmethod
-    def generate_solo_part(rand: Random) -> GuitarPart:
-        solo = GuitarPart()
-        scale = NaturalMinor('E', 4)
+    def generate_solo_part(rand: Random, scale, bars_count) -> GuitarPart:
         notes = scale.ascending()
         bar_list = []
-        for i in range(0, rand.randint(2, 4)):
+        for i in range(0, bars_count):
             bar = Bar()
 
-            bar.place_notes(notes[0], 16)
-            for i in range(1, 15):
-                bar.place_notes(notes[rand.randint(0, 16)], 16)
+            movement = rand.randint(0, 30)
 
+            # Tonic
+            bar.place_notes(notes[0], 16)
+            cur_note = Note(notes[0])
+
+            for j in range(1, 15):
+                # bar.place_notes(notes[rand.randint(0, 22) % 6], 16)
+
+                # Solo movement (up, down, random_notes)
+
+                # match movement:
+                #     case 0:
+                #         cur_note = Note(notes[(notes.index(cur_note.name) + 1) % 6], 4)
+                #         bar.place_notes(cur_note, 16)
+                #     case 1:
+                #         cur_note = Note(notes[(notes.index(cur_note.name) - 1) % 6], 4)
+                #         bar.place_notes(cur_note, 16)
+                #     case 2:
+                #
+                cur_note = Note(notes[rand.randint(0, 22) % 6])
+                bar.place_notes(cur_note, 16)
+                # Amount of notes in phrase (notes * repeats)
+                amount_of_notes = rand.randint(3, 4) * rand.randint(1, 2)
+
+            # End Tonic
             bar.place_notes(notes[0], 16)
 
             bar_list.append(bar)
@@ -107,36 +130,88 @@ class RiffGenerator:
         return part
 
     @staticmethod
-    def generate_drum_part(rand: Random, part_type) -> DrumPart:
-        drums = None
-        if part_type == SongPartType.Riff:
-            drums = DrumPartGenerators.simple_part()
-        return drums
+    def generate_drum_part(rand: Random, bars_count) -> DrumPart:
+        part = DrumPart()
+        bar_list = []
+        for i in range(0, bars_count):
+            bar = Bar()
+
+            for i in range(0, 8):
+                # 8 kick note
+                if i % 8 == 0:
+                    note = Note('D', 1)
+                    note.velocity = 127
+                    bar.place_notes(note, 8)
+                else:
+                    note = Note('C', 1)
+                    note.velocity = 127
+                    bar.place_notes(note, 8)
+
+                if i % 2 == 0:
+                    note = Note('E', 5)
+                    note.velocity = 127
+                    bar.place_notes(note, 8)
+            bar_list.append(bar)
+        part.bars = bar_list
+        return part
+
+    def generate_guitar_part(rand: Random, scale, bars_count) -> GuitarPart:
+        notes = scale.ascending()
+        bar_list = []
+        for i in range(0, bars_count):
+            bar = Bar()
+
+            movement = rand.randint(0, 30)
+
+            # Tonic
+            bar.place_notes(Note(notes[0], 2), 8)
+            cur_note = Note(notes[0])
+
+            for j in range(1, 7):
+                cur_note = Note(notes[rand.randint(0, 22) % 6], 2)
+                bar.place_notes(cur_note, 8)
+
+            # End Tonic
+            bar.place_notes(Note(notes[0], 2), 8)
+
+            bar_list.append(bar)
+
+        part = GuitarPart(bar_list)
+        return part
 
     @staticmethod
-    def generate_riff(rand: Random):
+    def generate_riff(rand: Random, song: Song):
         sub_riffs = rand.randint(0, 1)
+
+        bars_count = rand.randint(2, 4)
+
+        riff_types = enum_all_valuse_list(RiffType)
 
         for i in range(0, sub_riffs):
             pass
-        drum_part = RiffGenerator.generate_drum_part(rand, SongPartType.Riff)
-        solo_part = RiffGenerator.generate_solo_part(rand)
+        drum_part = RiffGenerator.generate_drum_part(rand, bars_count)
+        solo_part = RiffGenerator.generate_solo_part(rand, song.scale, bars_count)
+        guitar_part = RiffGenerator.generate_guitar_part(rand, song.scale, bars_count)
         part = SongPart(SongPartType.Riff,
-                        GuitarPart(),
-                        GuitarPart(),
+                        guitar_part,
+                        guitar_part,
                         solo_part,
-                        GuitarPart(),
+                        solo_part,
                         drum_part)
         return part
 
 
 class SongGenerator:
     @staticmethod
-    def generate_song_part(rand: Random, part_type: SongPartType) -> SongPart:
+    def generate_song_part(rand: Random, song: Song, part_type: SongPartType) -> SongPart:
         part = None
+
+        # Reseed random with part name and previous seed
+        # to make possible recreation of separated song p0000art
+
         match part_type:
             case SongPartType.Riff:
-                part = RiffGenerator.generate_riff(rand)
+                part = RiffGenerator.generate_riff(rand, song)
         return part
 
     @staticmethod
@@ -147,12 +222,14 @@ class SongGenerator:
 
         parts.append(SongPartType)
 
-        return [SongPartType.Riff]
+        parts.append(SongPartType.Outro)
+
+        return [SongPartType.Riff, SongPartType.Riff]
 
     @staticmethod
     def generate_song(config: ConfigData, name='', salt=0):
         rand = Random()
-        seed = int(hashlib.md5((name + str(salt)).encode('utf-8')).hexdigest(), 16)
+        seed = md5_from_str(name + str(salt))
         rand.seed(seed)
 
         low_note = 'E'
@@ -167,8 +244,9 @@ class SongGenerator:
                 break
 
         # structure = SongGenerator.generate_song_structure(rand)
-        structure = [SongPartType.Riff]
-        song = Song([], name, salt, bpm, structure)
-        song_parts = [SongGenerator.generate_song_part(rand, structure[0])]
+        structure = SongGenerator.generate_song_structure(rand)
+        song = Song(scale, name, salt, bpm, structure)
+
+        song_parts = [SongGenerator.generate_song_part(rand, song, i) for i in structure]
         song.song_parts = song_parts
         return song
