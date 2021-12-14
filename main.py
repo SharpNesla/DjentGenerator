@@ -6,13 +6,19 @@
 import time
 
 import mingus.core.scales as scales
+from mingus.containers import Note
 
-from song import SongGenerator, ConfigData
-from midi_exporter import MidiExporter
+import utils
+from song.song import SongGenerator
+from utils.config import ConfigData
+from utils.midi_exporter import MidiExporter
 
 
 def main():
-    MidiExporter.export_song(SongGenerator.generate_song(ConfigData(), 'KBD'), 'test.mid')
+    file = ConfigData.load_from_file()
+    print(file.drumset_notes.kick)
+    song = SongGenerator.generate_song(file, 'Devastation')
+    MidiExporter.export_song(song)
 
 
 # Press the green button in the gutter to run the script.

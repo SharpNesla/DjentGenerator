@@ -1,10 +1,9 @@
 from mingus.containers import Track, Composition
 from mingus.midi import midi_file_out, midi_track
-from song import Song, SongPart, DrumPart
+from song.song import Song, SongPart, DrumPart
 
 
 class MidiExporter:
-
     @staticmethod
     def build_song(song: Song) -> Composition:
         composition = Composition()
@@ -43,7 +42,10 @@ class MidiExporter:
         return composition
 
     @staticmethod
-    def export_song(song: Song, filename: str):
+    def export_song(song: Song, filename: str = None):
         composition = MidiExporter.build_song(song)
-        
+
+        if filename is None:
+            filename = f'{song.name}_({song.scale.name}_{song.bpm}BPM).mid'.replace(' ', '_')
+
         midi_file_out.write_Composition(filename, composition, bpm=90)

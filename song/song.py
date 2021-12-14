@@ -4,20 +4,15 @@ from enum import Enum, auto
 from random import Random
 
 import mingus.core.scales
+from mingus.core.notes import int_to_note
 from mingus.core.scales import *
 from mingus.containers import Track, Bar, Note
 import yaml
 
-from utils import md5_from_str, enum_all_valuse_list
+from utils.config import ConfigData
+from utils.utils import enum_all_valuse_list, md5_from_str
 
-
-class ConfigData(yaml.YAMLObject):
-    yaml_loader = yaml.SafeLoader
-    yaml_tag = u'!Config'
-
-    def __init__(self, BPMLowest=120, BPMHighest=120):
-        self.BPMLowest = BPMLowest
-        self.BPMHighest = BPMHighest
+_DEFAULT_KS = 'C0'
 
 
 class SongPartType:
@@ -27,16 +22,6 @@ class SongPartType:
     Verse: SongPartType = auto()
     Solo: SongPartType = auto()
     Outro: SongPartType = auto()
-
-
-class DrumPartGenerators:
-    @staticmethod
-    def simple_part() -> DrumPart:
-        part = DrumPart()
-        standard_bar = Bar()
-        standard_bar.place_notes('A', 4)
-        part.bars = [standard_bar] * 4
-        return part
 
 
 class DrumPart:
@@ -70,7 +55,7 @@ class SongPart:
 
 
 class Song:
-    def __init__(self, scale: list[str], name='', salt=0, bpm=120, song_parts: list[SongPart] = None,
+    def __init__(self, scale: mingus.core.scales._Scale, name='', salt=0, bpm=120, song_parts: list[SongPart] = None,
                  song_structure: list[SongPartType] = None):
         if song_parts is None:
             self.song_parts = []
@@ -164,15 +149,15 @@ class RiffGenerator:
             movement = rand.randint(0, 30)
 
             # Tonic
-            bar.place_notes(Note(notes[0], 2), 8)
+            bar.place_notes(Note(notes[0], 1, velocity=127), 8)
             cur_note = Note(notes[0])
 
             for j in range(1, 7):
-                cur_note = Note(notes[rand.randint(0, 22) % 6], 2)
+                cur_note = Note(notes[rand.randint(0, 22) % 6], 2, velocity=127)
                 bar.place_notes(cur_note, 8)
 
             # End Tonic
-            bar.place_notes(Note(notes[0], 2), 8)
+            bar.place_notes(Note(notes[0], 1, velocity=127), 8)
 
             bar_list.append(bar)
 
@@ -234,11 +219,11 @@ class SongGenerator:
 
         low_note = 'E'
 
-        bpm = rand.randint(config.BPMLowest, config.BPMHighest)
+        bpm = 120  # rand.randint(config.BPMLowest, config.BPMHighest)
         modes = [NaturalMinor, Major, Phrygian, Lydian]
         scale = None
         while True:
-            root_note = Chromatic('C').ascending()[rand.randint(0, 11)]
+            root_note = int_to_note(rand.randint(0, 11))
             scale = modes[rand.randint(0, 3)](root_note)
             if low_note in scale.ascending():
                 break
@@ -250,3 +235,7 @@ class SongGenerator:
         song_parts = [SongGenerator.generate_song_part(rand, song, i) for i in structure]
         song.song_parts = song_parts
         return song
+
+    @staticmethod
+    def generate_progression():
+        pass
