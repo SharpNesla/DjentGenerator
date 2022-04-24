@@ -14,11 +14,13 @@ def enum_all_valuse_list(enum_instance: Enum):
 
 
 def parse_note(note_oct_string: str):
-    octave = note_oct_string[-1:]
+    octave = int(note_oct_string[-1:]) + 1
     note = note_oct_string[:-1]
+    # Default velocity is 127
+    return Note(note, octave, velocity=127)
 
-    return Note(note, octave)
-
+def clone_note(note: Note):
+    return Note(note.name, note.octave)
 
 def dict_to_class(class_type, dictionary):
     # Applies to Python-3 Standard Library

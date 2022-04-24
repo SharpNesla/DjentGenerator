@@ -1,6 +1,7 @@
 from mingus.containers import Track, Composition
 from mingus.midi import midi_file_out, midi_track
-from song.song import Song, SongPart, DrumPart
+from song.song import Song
+from song.parts import DrumPart, SongPart
 
 
 class MidiExporter:
