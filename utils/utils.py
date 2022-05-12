@@ -1,4 +1,5 @@
 import hashlib
+import re
 from enum import Enum
 from collections import namedtuple
 from mingus.containers import Note
@@ -14,13 +15,19 @@ def enum_all_valuse_list(enum_instance: Enum):
 
 
 def parse_note(note_oct_string: str):
-    octave = int(note_oct_string[-1:]) + 1
-    note = note_oct_string[:-1]
+    octave = int(re.findall(r'-?\d+$', note_oct_string)[0])
+    note = re.findall(r'^[A-G]#?', note_oct_string)[0]
     # Default velocity is 127
     return Note(note, octave, velocity=127)
 
+
+def transpose_note(note: Note, interval: int) -> Note:
+    return Note().from_int(int(note) + interval)
+
+
 def clone_note(note: Note):
     return Note(note.name, note.octave)
+
 
 def dict_to_class(class_type, dictionary):
     # Applies to Python-3 Standard Library

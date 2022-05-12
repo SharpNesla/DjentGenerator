@@ -1,6 +1,4 @@
-import mido
-
-from song import Song
+from song.song import Song
 
 
 class Playback:

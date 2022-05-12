@@ -43,3 +43,26 @@ def generate_solo_part(rand: Random, scale, bars_count) -> GuitarPart:
 
     part = GuitarPart(bar_list)
     return part
+
+def updown_weighted_solo(rand: Random, scale, bars_count) -> GuitarPart:
+    notes = scale.ascending()
+    upper_oct = 48
+    lower_oct = 0
+    position = 32
+    bar = Bar()
+    bar.length = 32
+    for i in range(0, bars_count):
+
+        bar.place_notes(notes[0], 16)
+
+        for j in range(0, 15):
+            movement = rand.randint(0, 1)
+            if movement == 0:
+                position += 1
+            else:
+                position -= 1
+            cur_note = Note(notes[position % len(notes)], position // len(notes))
+            bar.place_notes(cur_note, 16)
+
+    part = GuitarPart([bar])
+    return part

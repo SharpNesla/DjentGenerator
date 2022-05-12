@@ -1,14 +1,40 @@
 # Example config, to use this copy this file with name "config-example.yaml"
 # GGD Modern Massive standard notes
 drumset_notes:
-  kick: C0
-  snare: D0
-  rack_tom: A0
-  floor_tom_1: B0
-  floor_tom_2: D#1
-  hat_closed: B1
-  hat_open: G#2
-  crash_left: D3
-  crash_right: G3
-  ride: D4
-  china: E4
+  kick: C1
+  snare: D1
+  rack_tom: A1
+  floor_tom_1: B1
+  floor_tom_2: D#2
+  hat_closed: B2
+  hat_open: G#3
+  crash_left: D4
+  crash_right: G4
+  ride: D5
+  china: E5
+
+# Shreddage 3: Hydra tuning and standard key switches
+guitar:
+  tuning:
+    - E4
+    - B3
+    - G3
+    - D3
+    - A2
+    - E2
+    - B1
+    - E1
+  ks_sustain: C0
+  ks_mute: C#1
+  ks_tapping: D1
+
+  ks_strings:
+    - G-1
+    - F#-1
+    - F-1
+    - E-1
+    - D#-1
+    - D-1
+    - C#-1
+    - C-1
+  ks_strings_off: G#-1

@@ -6,6 +6,7 @@ from song.parts import DrumPart
 def blastbeat():
     pass
 
+
 def simple_part() -> DrumPart:
     part = DrumPart()
     standard_bar = Bar()

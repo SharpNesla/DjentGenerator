@@ -21,10 +21,25 @@ class DrumSetConfig(yaml.YAMLObject):
     ride: Note
     china: Note
 
+class GuitarConfig(yaml.YAMLObject):
+    yaml_loader = yaml.SafeLoader
+    yaml_tag = '!guitar'
+    tuning: [Note]
+
+    # Key switches
+    ks_sustain: Note
+    ks_mute: Note
+    ks_tapping: Note
+
+    # Key switches for strings, from 1 to n-th string
+    ks_strings: [Note]
+    ks_strings_off: Note
+
 
 class ConfigData(yaml.YAMLObject):
     yaml_loader = yaml.SafeLoader
     drumset_notes: DrumSetConfig
+    guitar: GuitarConfig
 
     def __init__(self, drumset_notes: DrumSetConfig = None):
         if drumset_notes is None:
@@ -50,6 +65,18 @@ class ConfigData(yaml.YAMLObject):
                 data.drumset_notes.crash_right = parse_note(data.drumset_notes.crash_right)
                 data.drumset_notes.ride = parse_note(data.drumset_notes.ride)
                 data.drumset_notes.china = parse_note(data.drumset_notes.china)
+
+                yaml.add_constructor('!guitar', DrumSetConfig.__init__)
+                if len(data.guitar.tuning) != len(data.guitar.ks_strings):
+                    raise Exception('Incorrect strings KS-s amount')
+
+                data.guitar.tuning = [parse_note(x) for x in data.guitar.tuning]
+                data.guitar.ks_sustain = parse_note(data.guitar.ks_sustain)
+                data.guitar.ks_mute = parse_note(data.guitar.ks_mute)
+                data.guitar.ks_tapping = parse_note(data.guitar.ks_tapping)
+                data.guitar.ks_strings_off = parse_note(data.guitar.ks_strings_off)
+                data.guitar.ks_strings = [parse_note(x) for x in data.guitar.ks_strings]
+
             except yaml.YAMLError as exc:
                 print(exc)
 

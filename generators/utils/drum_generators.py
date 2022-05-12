@@ -1,10 +1,9 @@
 from random import Random
 
-from mingus.containers import Bar, Note
+from mingus.containers import Bar
 
-from generators.generic.silence_generator import generate_silence
 from song.song import Song
-from song.parts import SongPartType, DrumPart, SongPart
+from song.parts import DrumPart, SongPart
 from utils.config import ConfigData
 
 

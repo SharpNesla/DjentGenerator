@@ -49,4 +49,4 @@ class MidiExporter:
         if filename is None:
             filename = f'{song.name}_({song.scale.name}_{song.bpm}BPM).mid'.replace(' ', '_')
 
-        midi_file_out.write_Composition(filename, composition, bpm=90)
+        midi_file_out.write_Composition(filename, composition, song.bpm)
